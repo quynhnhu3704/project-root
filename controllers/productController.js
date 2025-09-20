@@ -1,32 +1,40 @@
 const Product = require('../models/Product');
 const Supplier = require('../models/Supplier');
 
-// List products
-exports.list = async (req, res) => {
-  const search = req.query.search || '';
-  const products = await Product.find({ name: { $regex: search, $options: 'i' } }).populate('supplier');
-  res.render('products/index', { products });
+module.exports.index = async (req, res) => {
+  const { supplier, q } = req.query;
+  const filter = {};
+  if(supplier) filter.supplier = supplier;
+  if(q) filter.name = { $regex: q, $options: 'i' };
+  const products = await Product.find(filter).populate('supplier');
+  const suppliers = await Supplier.find();
+  res.render('products/index', { products, suppliers, filterQ: q || '' });
 };
 
-// GET form
-exports.getForm = async (req, res) => {
-  const product = req.params.id ? await Product.findById(req.params.id) : {};
+module.exports.newForm = async (req, res) => {
+  const suppliers = await Supplier.find();
+  res.render('products/form', { product: {}, suppliers });
+};
+
+module.exports.create = async (req, res) => {
+  const { name, price, quantity, supplier, sku } = req.body;
+  await Product.create({ name, price, quantity, supplier: supplier || null, sku });
+  res.redirect('/products');
+};
+
+module.exports.editForm = async (req, res) => {
+  const product = await Product.findById(req.params.id);
   const suppliers = await Supplier.find();
   res.render('products/form', { product, suppliers });
 };
 
-// POST create or update
-exports.save = async (req, res) => {
-  if (req.params.id) {
-    await Product.findByIdAndUpdate(req.params.id, req.body);
-  } else {
-    await Product.create(req.body);
-  }
+module.exports.update = async (req, res) => {
+  const { name, price, quantity, supplier, sku } = req.body;
+  await Product.findByIdAndUpdate(req.params.id, { name, price, quantity, supplier: supplier || null, sku });
   res.redirect('/products');
 };
 
-// POST delete
-exports.delete = async (req, res) => {
+module.exports.delete = async (req, res) => {
   await Product.findByIdAndDelete(req.params.id);
   res.redirect('/products');
 };

@@ -1,22 +1,36 @@
-<% include('layout', { title: 'Home', body: '' }) %>
-<h1>Danh sách sản phẩm</h1>
-<table class="table table-bordered">
-  <thead>
-    <tr>
-      <th>Tên</th>
-      <th>Giá</th>
-      <th>Số lượng</th>
-      <th>Nhà cung cấp</th>
-    </tr>
-  </thead>
-  <tbody>
+<%- include('partials/header') %>
+
+<div class="container my-4">
+  <h1 class="mb-4">Home</h1>
+
+  <form method="GET" action="/products" class="row g-3 mb-4">
+    <div class="col-md-5">
+      <input type="text" name="q" class="form-control" placeholder="Search products by name">
+    </div>
+    <div class="col-md-4">
+      <select name="supplier" class="form-select">
+        <option value="">-- All suppliers --</option>
+        <% suppliers.forEach(s => { %>
+          <option value="<%= s._id %>"><%= s.name %></option>
+        <% }) %>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <button type="submit" class="btn btn-primary w-100">Search / Filter</button>
+    </div>
+  </form>
+
+  <h2 class="mb-3">Products</h2>
+  <ul class="list-group">
     <% products.forEach(p => { %>
-      <tr>
-        <td><%= p.name %></td>
-        <td><%= p.price %></td>
-        <td><%= p.quantity %></td>
-        <td><%= p.supplier ? p.supplier.name : '' %></td>
-      </tr>
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+          <strong><%= p.name %></strong> - <%= p.price %> - qty: <%= p.quantity %>
+          <% if(p.supplier){ %> (Supplier: <%= p.supplier.name %>) <% } %>
+        </div>
+      </li>
     <% }) %>
-  </tbody>
-</table>
+  </ul>
+</div>
+
+<%- include('partials/footer') %>

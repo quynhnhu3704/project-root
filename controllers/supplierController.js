@@ -1,29 +1,32 @@
 const Supplier = require('../models/Supplier');
 
-// List suppliers
-exports.list = async (req, res) => {
-  const suppliers = await Supplier.find();
+module.exports.index = async (req, res) => {
+  const suppliers = await Supplier.find({});
   res.render('suppliers/index', { suppliers });
 };
 
-// GET form
-exports.getForm = async (req, res) => {
-  const supplier = req.params.id ? await Supplier.findById(req.params.id) : {};
-  res.render('suppliers/form', { supplier });
+module.exports.newForm = (req, res) => {
+  res.render('suppliers/form', { supplier: {} });
 };
 
-// POST create or update
-exports.save = async (req, res) => {
-  if (req.params.id) {
-    await Supplier.findByIdAndUpdate(req.params.id, req.body);
-  } else {
-    await Supplier.create(req.body);
-  }
+module.exports.create = async (req, res) => {
+  const { name, address, phone } = req.body;
+  await Supplier.create({ name, address, phone });
   res.redirect('/suppliers');
 };
 
-// POST delete
-exports.delete = async (req, res) => {
+module.exports.editForm = async (req, res) => {
+  const sup = await Supplier.findById(req.params.id);
+  res.render('suppliers/form', { supplier: sup });
+};
+
+module.exports.update = async (req, res) => {
+  const { name, address, phone } = req.body;
+  await Supplier.findByIdAndUpdate(req.params.id, { name, address, phone });
+  res.redirect('/suppliers');
+};
+
+module.exports.delete = async (req, res) => {
   await Supplier.findByIdAndDelete(req.params.id);
   res.redirect('/suppliers');
 };

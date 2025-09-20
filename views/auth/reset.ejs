@@ -1,0 +1,33 @@
+<%- include('../partials/header') %>
+
+<div class="container my-5">
+  <h1 class="mb-4">Reset Password</h1>
+
+  <% if(typeof error !== 'undefined' && error){ %>
+    <div class="alert alert-danger"><%= error %></div>
+  <% } %>
+  <% if(typeof success !== 'undefined' && success){ %>
+    <div class="alert alert-success"><%= success %></div>
+  <% } %>
+
+  <form method="POST" action="/auth/reset" class="row g-3">
+    <!-- ẩn username để controller biết đổi mật khẩu cho user nào -->
+    <input type="hidden" name="username" value="<%= username %>">
+
+    <div class="col-md-6">
+      <label class="form-label">New Password</label>
+      <input type="password" name="password" class="form-control" placeholder="Enter new password" required>
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label">Confirm Password</label>
+      <input type="password" name="confirmPassword" class="form-control" placeholder="Confirm new password" required>
+    </div>
+
+    <div class="col-12">
+      <button type="submit" class="btn btn-primary">Reset Password</button>
+    </div>
+  </form>
+</div>
+
+<%- include('../partials/footer') %>

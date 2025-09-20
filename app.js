@@ -1,78 +1,58 @@
-// app.js
+require('dotenv').config();
 const express = require('express');
-const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
-const cookieParser = require('cookie-parser');
-const dotenv = require('dotenv');
+const mongoose = require('mongoose');
+const methodOverride = require('method-override');
 const path = require('path');
+const bodyParser = require('body-parser');
 
-// Load env
-dotenv.config();
-
-const app = express();
-
-// Routes
-const indexRoutes = require('./routes/index');
 const authRoutes = require('./routes/auth');
 const supplierRoutes = require('./routes/suppliers');
 const productRoutes = require('./routes/products');
+const indexRoutes = require('./routes/index');
 
-// Swagger
-const swaggerJsDoc = require('swagger-jsdoc');
+const app = express();
 const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./swagger.json');
 
-// Middlewares
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+// middleware set default title
+app.use((req, res, next) => {
+  res.locals.title = 'Part App';
+  next();
+});
+const PORT = process.env.PORT || 3000;
+
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(methodOverride('_method'));
 
-// MongoDB
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('✅ MongoDB connected'))
-  .catch(err => console.error(err));
+mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/partdb')
+  .then(()=> console.log('Mongo connected'))
+  .catch(err=> console.error(err));
 
-// Session
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'secret',
+  secret: process.env.SESSION_SECRET || 'secret123',
   resave: false,
   saveUninitialized: false,
-  store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
-  cookie: { httpOnly: true, maxAge: 1000 * 60 * 60 }
+  store: MongoStore.create({ mongoUrl: process.env.MONGO_URI || 'mongodb://localhost:27017/partdb' }),
+  cookie: { maxAge: 1000 * 60 * 60 * 24 }
 }));
 
-// Pass userId to all views
-app.use((req, res, next) => {
-  res.locals.userId = req.session.userId || null;
+// expose user to views
+app.use((req, res, next)=>{
+  res.locals.currentUser = req.session.user || null;
   next();
 });
 
-// Routes
 app.use('/', indexRoutes);
 app.use('/auth', authRoutes);
 app.use('/suppliers', supplierRoutes);
 app.use('/products', productRoutes);
 
-// Swagger config
-const swaggerOptions = {
-  swaggerDefinition: {
-    openapi: "3.0.0",
-    info: {
-      title: "Node CRUD Session API",
-      version: "1.0.0",
-      description: "API quản lý sản phẩm & nhà cung cấp với session & cookie"
-    },
-    servers: [{ url: `http://localhost:${process.env.PORT || 3000}` }]
-  },
-  apis: ['./routes/*.js']
-};
-
-const swaggerDocs = swaggerJsDoc(swaggerOptions);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
-
-// Start server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+app.listen(PORT, ()=> console.log(`Server running on http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`Swagger running on http://localhost:${PORT}/api-docs`));

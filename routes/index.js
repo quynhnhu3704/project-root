@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const Supplier = require('../models/Supplier');
 const Product = require('../models/Product');
+const Supplier = require('../models/Supplier');
 
-/* GET home page */
 router.get('/', async (req, res) => {
+  // show home with products and filters
   const suppliers = await Supplier.find();
-  const products = await Product.find().populate('supplier');
-  res.render('index', { userId: req.session.userId, suppliers, products });
+  const products = await Product.find({}).populate('supplier');
+  res.render('index', { suppliers, products });
 });
 
 module.exports = router;
