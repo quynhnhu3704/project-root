@@ -1,0 +1,22 @@
+<% include('layout', { title: 'Home', body: '' }) %>
+<h1>Danh sách sản phẩm</h1>
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>Tên</th>
+      <th>Giá</th>
+      <th>Số lượng</th>
+      <th>Nhà cung cấp</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% products.forEach(p => { %>
+      <tr>
+        <td><%= p.name %></td>
+        <td><%= p.price %></td>
+        <td><%= p.quantity %></td>
+        <td><%= p.supplier ? p.supplier.name : '' %></td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>

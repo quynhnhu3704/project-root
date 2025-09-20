@@ -1,0 +1,39 @@
+<%- include('../layout', { title: 'Products', body: '' }) %>
+
+<div class="container mt-5">
+  <h2 class="mb-4">Products</h2>
+  <a href="/products/new" class="btn btn-success mb-3">Add Product</a>
+
+  <form action="/products" method="GET" class="mb-3 d-flex">
+    <input type="text" name="search" class="form-control me-2" placeholder="Search product">
+    <button type="submit" class="btn btn-primary">Search</button>
+  </form>
+
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Quantity</th>
+        <th>Supplier</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% products.forEach(product => { %>
+        <tr>
+          <td><%= product.name %></td>
+          <td><%= product.price %></td>
+          <td><%= product.quantity %></td>
+          <td><%= product.supplier ? product.supplier.name : '' %></td>
+          <td>
+            <a href="/products/edit/<%= product._id %>" class="btn btn-primary btn-sm">Edit</a>
+            <form action="/products/delete/<%= product._id %>" method="POST" class="d-inline">
+              <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+            </form>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,31 @@
+<%- include('../layout', { title: 'Suppliers', body: '' }) %>
+
+<div class="container mt-5">
+  <h2 class="mb-4">Suppliers</h2>
+  <a href="/suppliers/new" class="btn btn-success mb-3">Add Supplier</a>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Address</th>
+        <th>Phone</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% suppliers.forEach(supplier => { %>
+        <tr>
+          <td><%= supplier.name %></td>
+          <td><%= supplier.address %></td>
+          <td><%= supplier.phone %></td>
+          <td>
+            <a href="/suppliers/edit/<%= supplier._id %>" class="btn btn-primary btn-sm">Edit</a>
+            <form action="/suppliers/delete/<%= supplier._id %>" method="POST" class="d-inline">
+              <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+            </form>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
